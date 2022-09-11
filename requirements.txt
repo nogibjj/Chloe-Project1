@@ -5,6 +5,7 @@ pytest
 pytest-cov
 fastapi
 requests
+<<<<<<< HEAD
 openai
 kaggle
 pandas
@@ -14,3 +15,6 @@ matplotlib
 seaborn
 plotly
 PyArrow
+=======
+openai
+>>>>>>> d816dd71893f7718ff048aacf0747c71f2d40eae
