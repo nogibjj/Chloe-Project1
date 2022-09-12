@@ -18,3 +18,4 @@ sklearn
 yellowbrick
 nbformat
 ordcloud
+scipy
