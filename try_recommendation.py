@@ -76,15 +76,17 @@ output=KMeans_fit.transform(data_scale_output)
 def get_distance(y,num):
     ''' get recommendations'''
     y_line = output.filter(output.name==y)
+    y_line.show()
     y_loc = y_line.toPandas()['standardized'].values[0]
     same_cluster = output.filter(output.prediction==y_line.prediction)
     distance_udf = F.udf(lambda x: float(distance.euclidean(x, y_loc)), FloatType())
-    same_cluster = same_cluster.withColumn('distances', distance_udf(F.col('features')))
+    same_cluster = same_cluster.withColumn('distances', distance_udf(F.col('standardized')))
     same_cluster = same_cluster.sort(same_cluster.distances.asc())
+    same_cluster.limit(num).show()
     return same_cluster.limit(num).toPandas()[['artists','name']]
 
-recommendation = get_distance('Singende Bataillone 1. Teil',5)
-print(recommendation)
+recommendation = get_distance('She Was Mine (feat. Jesse Barrera)',5)
+# print(recommendation)
 
 
 # def main():

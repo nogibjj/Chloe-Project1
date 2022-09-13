@@ -29,6 +29,8 @@ import streamlit.components.v1 as stc
 
 from pyspark.sql import functions as F
 
+from ast import literal_eval
+
 
 
 spark = SparkSession.builder.getOrCreate()
@@ -91,15 +93,20 @@ def get_distance(y,num):
     y_loc = y_line.toPandas()['standardized'].values[0]
     same_cluster = output.filter(output.prediction==y_line.prediction)
     distance_udf = F.udf(lambda x: float(distance.euclidean(x, y_loc)), FloatType())
-    same_cluster = same_cluster.withColumn('distances', distance_udf(F.col('features')))
+    same_cluster = same_cluster.withColumn('distances', distance_udf(F.col('standardized')))
     same_cluster = same_cluster.sort(same_cluster.distances.asc())
-    return same_cluster.limit(num).toPandas()[['artists','name']]
+    same_cluster = same_cluster.toPandas()
+    same_cluster = same_cluster[same_cluster.name != y]
+    same_cluster['artists'] = same_cluster.artists.apply(lambda x: x.strip('][').split(', '))
+    same_cluster['artists'] = same_cluster['artists'].apply(lambda x: ', '.join([i.strip("'") for i in x]))
+    same_cluster = same_cluster.sort_values(by=['distances'])
+    return same_cluster[['artists','name','year']].head(num)
 
 # recommendation = get_distance('Singende Bataillone 1. Teil',5)
 # print(recommendation)
 
 def main():
-    st.title("Spotify Song Recommender")
+    st.title("Spotify Songs Recommender")
     st.write("This is a song recommender based on the Spotify dataset.")
     st.write("The dataset contains 170,000 songs with 18 features.")
     st.write("The features are: acousticness, artists, danceability, duration_ms, energy, explicit, id, instrumentalness, key, liveness, loudness, mode, name, popularity, release_date, speechiness, tempo, valence, year")
