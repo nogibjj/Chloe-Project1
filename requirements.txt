@@ -19,3 +19,4 @@ yellowbrick
 nbformat
 ordcloud
 scipy
+streamlit
