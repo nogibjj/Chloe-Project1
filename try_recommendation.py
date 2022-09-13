@@ -73,11 +73,18 @@ KMeans_fit=KMeans_algo.fit(data_scale_output)
 output=KMeans_fit.transform(data_scale_output)
 
 # @F.udf(StringType())
-def get_distance(y,num):
+def get_distance(y,num,artists):
     ''' get recommendations'''
-    y_line = output.filter(output.name==y)
+    # y_line = output.filter(output.name==y)
+    # y_line.show()
+    # y_loc = y_line.toPandas()['standardized'].values[0]
+
+    y_line = output.filter((output.name==y))
+    y_loc = y_line.toPandas()['standardized'].values
+
     y_line.show()
-    y_loc = y_line.toPandas()['standardized'].values[0]
+    print(y_loc)
+
     same_cluster = output.filter(output.prediction==y_line.prediction)
     distance_udf = F.udf(lambda x: float(distance.euclidean(x, y_loc)), FloatType())
     same_cluster = same_cluster.withColumn('distances', distance_udf(F.col('standardized')))
@@ -85,7 +92,7 @@ def get_distance(y,num):
     same_cluster.limit(num).show()
     return same_cluster.limit(num).toPandas()[['artists','name']]
 
-recommendation = get_distance('She Was Mine (feat. Jesse Barrera)',5)
+recommendation = get_distance('We Are Never Ever Getting Back Together',5,'Taylor Swift')
 # print(recommendation)
 
 

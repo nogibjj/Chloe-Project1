@@ -87,10 +87,12 @@ KMeans_fit=KMeans_algo.fit(data_scale_output)
 output=KMeans_fit.transform(data_scale_output)
 
 # @F.udf(StringType())
-def get_distance(y,num):
+def get_distance(y,num,artist):
     ''' get recommendations'''
-    y_line = output.filter(output.name==y)
+
+    y_line = output.filter((output.name==y) & (output.artists==artist))
     y_loc = y_line.toPandas()['standardized'].values[0]
+
     same_cluster = output.filter(output.prediction==y_line.prediction)
     distance_udf = F.udf(lambda x: float(distance.euclidean(x, y_loc)), FloatType())
     same_cluster = same_cluster.withColumn('distances', distance_udf(F.col('standardized')))
@@ -124,10 +126,17 @@ def main():
         st.write("This is the recommendation page.")
         song_list = df.toPandas()['name'].values
         selected_song = st.selectbox( "Type or select a song from the dropdown", song_list )
+
+        df_pandas = df.filter(df.name==selected_song).toPandas()
+        df_pandas.artitst = df_pandas.artists.apply(lambda x: x.strip('][').split(', '))
+        df_pandas.artitst = df_pandas.artitst.apply(lambda x: ', '.join([i.strip("'") for i in x]))
+        artitst_list = df_pandas.artitst.values
+        selected_artist = st.selectbox( "Type or select an artist from the dropdown", artitst_list)
+        
         num_of_songs = st.slider("Number of songs to recommend", 1, 10, 5)
         if st.button('Show Recommendation'):
-            if selected_song is not None:
-                recommended_song_names = get_distance(selected_song,num_of_songs)
+            if selected_song is not None and selected_artist is not None:
+                recommended_song_names = get_distance(selected_song,num_of_songs,selected_artist)
                 st.dataframe(recommended_song_names)
 
     elif choice == "About":
