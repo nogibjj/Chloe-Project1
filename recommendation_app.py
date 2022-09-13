@@ -31,7 +31,9 @@ from pyspark.sql import functions as F
 
 from ast import literal_eval
 
-
+data = pd.read_csv('data.csv')
+data['artists'] = data['artists'].apply(lambda x: x.strip('][').split(', '))
+data['artists'] = data['artists'].apply(lambda x: ', '.join([i.strip("'") for i in x]))
 
 spark = SparkSession.builder.getOrCreate()
 
@@ -56,7 +58,9 @@ schema = schema = StructType([
     StructField("valence", FloatType(), True),
     StructField("year", IntegerType(), True)
     ])
-df = spark.read.csv("data.csv",header=True, inferSchema=True, schema=schema)
+
+
+df = spark.createDataFrame(data,schema=schema)
 df = df.na.drop()
 df = df.dropDuplicates(["artists","name"])
 
@@ -89,7 +93,6 @@ output=KMeans_fit.transform(data_scale_output)
 # @F.udf(StringType())
 def get_distance(y,num,artist):
     ''' get recommendations'''
-
     y_line = output.filter((output.name==y) & (output.artists==artist))
     y_loc = y_line.toPandas()['standardized'].values[0]
 
@@ -125,12 +128,13 @@ def main():
         st.subheader("Recommendation")
         st.write("This is the recommendation page.")
         song_list = df.toPandas()['name'].values
-        selected_song = st.selectbox( "Type or select a song from the dropdown", song_list )
+        selected_song = st.selectbox( "Type or select a song from the dropdown", song_list)
 
-        df_pandas = df.filter(df.name==selected_song).toPandas()
-        df_pandas.artitst = df_pandas.artists.apply(lambda x: x.strip('][').split(', '))
-        df_pandas.artitst = df_pandas.artitst.apply(lambda x: ', '.join([i.strip("'") for i in x]))
-        artitst_list = df_pandas.artitst.values
+        # df_pandas = df.filter(df.name==selected_song).toPandas()
+        # df_pandas.artitst = df_pandas.artists.apply(lambda x: x.strip('][').split(', '))
+        # df_pandas.artitst = df_pandas.artitst.apply(lambda x: ', '.join([i.strip("'") for i in x]))
+        # artitst_list = df_pandas.artitst.values
+        artitst_list = df.filter(df.name==selected_song).toPandas()['artists'].values
         selected_artist = st.selectbox( "Type or select an artist from the dropdown", artitst_list)
         
         num_of_songs = st.slider("Number of songs to recommend", 1, 10, 5)
