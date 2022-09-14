@@ -127,7 +127,7 @@ def main():
     elif choice == "Recommendation":
         st.subheader("Recommendation")
         st.write("This is the recommendation page.")
-        song_list = df.toPandas()['name'].values
+        song_list = df.toPandas()['name'].unique()
         selected_song = st.selectbox( "Type or select a song from the dropdown", song_list)
 
         # df_pandas = df.filter(df.name==selected_song).toPandas()
