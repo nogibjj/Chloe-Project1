@@ -19,6 +19,9 @@ from wordcloud import WordCloud, STOPWORDS
 data = pd.read_csv('data.csv')
 data['artists'] = data['artists'].apply(lambda x: x.strip('][').split(', '))
 data['artists'] = data['artists'].apply(lambda x: ', '.join([i.strip("'\"") for i in x]))
+li = ['remix','Remix','feat.','Feat.']
+for i in li:
+    data['name'] = data['name'].apply(lambda x: x.split(i)[0])
 
 spark = SparkSession.builder.getOrCreate()
 
