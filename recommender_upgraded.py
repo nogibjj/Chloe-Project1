@@ -2,8 +2,6 @@ import pandas as pd
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, FloatType
 import matplotlib.pyplot as plt
-from sklearn.cluster import KMeans
-from sklearn.preprocessing import StandardScaler
 import warnings
 warnings.filterwarnings("ignore")
 from pyspark.ml.feature import VectorAssembler
@@ -14,7 +12,6 @@ import streamlit as st
 from pyspark.sql import functions as F
 from PIL import Image
 import plotly.graph_objects as go
-import plotly.express as px
 from plotly.subplots import make_subplots
 from wordcloud import WordCloud, STOPWORDS
 
@@ -99,17 +96,17 @@ def get_distance(y,num,artist):
 # recommendation = get_distance('Singende Bataillone 1. Teil',5)
 # print(recommendation)
 
-def cloud(input):
+def cloud(input_val):
     ''' word cloud'''
     st.set_option('deprecation.showPyplotGlobalUse', False)
 
     comment_words = ''
     stopwords = set(STOPWORDS)
-    if type(input) is str:
+    if type(input_val) is str:
         col = 'artists'
     else:
         col = 'year'
-    for val in df.toPandas()[df.toPandas()[col] == input]['name']:
+    for val in df.toPandas()[df.toPandas()[col] == input_val]['name']:
         # typecaste each val to string
         val = str(val)
     

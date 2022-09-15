@@ -17,6 +17,6 @@ PyArrow
 sklearn
 yellowbrick
 nbformat
-ordcloud
+wordcloud
 scipy
 streamlit
