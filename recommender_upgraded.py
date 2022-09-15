@@ -1,43 +1,22 @@
 import pandas as pd
-import numpy as np
-import pyspark.pandas as ps
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, FloatType
-import seaborn as sns
-import plotly.express as px 
 import matplotlib.pyplot as plt
-
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import Pipeline
-from sklearn.manifold import TSNE
-from sklearn.decomposition import PCA
-from sklearn.metrics import euclidean_distances
-from scipy.spatial.distance import cdist
-
 import warnings
 warnings.filterwarnings("ignore")
-
 from pyspark.ml.feature import VectorAssembler
 from pyspark.ml.feature import StandardScaler
 from pyspark.ml.clustering import KMeans
-from pyspark.ml.evaluation import ClusteringEvaluator
 from scipy.spatial import distance
-
 import streamlit as st
-import streamlit.components.v1 as stc
-
 from pyspark.sql import functions as F
-
-from yellowbrick.target import FeatureCorrelation
-
 from PIL import Image
-
 import plotly.graph_objects as go
 import plotly.express as px
 from plotly.subplots import make_subplots
-
-import plotly.figure_factory as ff
+from wordcloud import WordCloud, STOPWORDS
 
 
 data = pd.read_csv('data.csv')
@@ -123,7 +102,6 @@ def get_distance(y,num,artist):
 def cloud(input):
     ''' word cloud'''
     st.set_option('deprecation.showPyplotGlobalUse', False)
-    from wordcloud import WordCloud, STOPWORDS
 
     comment_words = ''
     stopwords = set(STOPWORDS)
