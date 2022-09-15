@@ -19,7 +19,6 @@ from wordcloud import WordCloud, STOPWORDS
 data = pd.read_csv('data.csv')
 data['artists'] = data['artists'].apply(lambda x: x.strip('][').split(', '))
 data['artists'] = data['artists'].apply(lambda x: ', '.join([i.strip("'\"") for i in x]))
-# data['artists'] = data['artists'].apply(lambda x: ', '.join([i.strip("\"") for i in x]))
 
 spark = SparkSession.builder.getOrCreate()
 
@@ -161,10 +160,10 @@ def main():
         st.subheader("Recommendation")
         st.write("Please enter the singer name and choose song name.")
         artitst_list = df.toPandas()['artists'].unique()
-        selected_singer = st.selectbox( "Type or select a song from the dropdown", artitst_list)
+        selected_singer = st.selectbox( "Type or select an artist from the dropdown", artitst_list)
         song_list = df.filter(df.artists.contains(selected_singer)).toPandas()['name'].values
         selected_song = st.selectbox( "Type or select a song from the dropdown", song_list)
-        num_of_songs = st.slider("Number of songs to recommend", 1, 10, 5)
+        num_of_songs = st.slider("Number of songs to recommend", 1, 30, 5)
         if st.button("Recommend"):
             recommendation = get_distance(selected_song,num_of_songs,selected_singer)
             st.write(recommendation)
@@ -175,7 +174,7 @@ def main():
         selected_song = st.selectbox( "Type or select a song from the dropdown", song_list)
         artitst_list = df.filter(df.name==selected_song).toPandas()['artists'].values
         selected_artist = st.selectbox( "Type or select an artist from the dropdown", artitst_list)
-        num_of_songs = st.slider("Number of songs to recommend", 1, 10, 5)
+        num_of_songs = st.slider("Number of songs to recommend", 1, 30, 5)
         if st.button('Show Recommendation'):
             if selected_song is not None and selected_artist is not None:
                 recommended_song_names = get_distance(selected_song,num_of_songs,selected_artist)
@@ -195,7 +194,7 @@ def main():
         st.write("Top artists ranking for a year")
         # Artist ranking for a year
         year_list = sorted(df.toPandas()['year'].unique(),reverse=True)
-        selected_year = st.selectbox( "Type or select a year from the dropdown", year_list)
+        selected_year = st.selectbox( "Type or select a year from the dropdown", year_list,key = 'Artist ranking for a year')
 
         num_of_artists = st.slider("Number of artists to show", 1, 30, 15)
 
@@ -206,7 +205,9 @@ def main():
             layout_title_text="Artist ranking for the year - "+str(selected_year))
         st.plotly_chart(fig, use_container_width=True)
 
-        # Artist ranking along with the number of hit songs released over the years
+        # Popular artist ranking along with the number of hit songs released over the years
+
+        num_of_artists = st.slider("Number of artists to show", 1, 50, 25,key = 'Popular artist ranking along with the number of hit songs released over the years')
         st.write("Artist ranking along with the number of hit songs released over the years")
         artist_ranking_hit = df.toPandas().groupby("artists").mean().sort_values(["popularity"],ascending=False).head(num_of_artists)
         artist_ranking_hit["artists"] = artist_ranking_hit.index.values
@@ -237,7 +238,7 @@ def main():
         fig.update_yaxes(title_text="<b>Popularity</b>", secondary_y=False)
         fig.update_yaxes(title_text="<b># Hit songs", secondary_y=True)
 
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig)
 
 if __name__ == '__main__':
     main()
