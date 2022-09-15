@@ -20,8 +20,12 @@ data = pd.read_csv('data.csv')
 data['artists'] = data['artists'].apply(lambda x: x.strip('][').split(', '))
 data['artists'] = data['artists'].apply(lambda x: ', '.join([i.strip("'\"") for i in x]))
 li = ['remix','Remix','feat.','Feat.']
+
+def clean_name(x,i):
+    x = x.split(i)[0]
+    return x
 for w in li:
-    data['name'] = data['name'].apply(lambda x: x.split(w)[0])
+    data['name'] = data['name'].apply(clean_name,i=w)
 
 spark = SparkSession.builder.getOrCreate()
 
