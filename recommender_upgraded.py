@@ -120,6 +120,41 @@ def get_distance(y,num,artist):
 # recommendation = get_distance('Singende Bataillone 1. Teil',5)
 # print(recommendation)
 
+def cloud(input):
+    ''' word cloud'''
+    st.set_option('deprecation.showPyplotGlobalUse', False)
+    from wordcloud import WordCloud, STOPWORDS
+
+    comment_words = ''
+    stopwords = set(STOPWORDS)
+    if type(input) is str:
+        col = 'artists'
+    else:
+        col = 'year'
+    for val in df.toPandas()[df.toPandas()[col] == input]['name']:
+        # typecaste each val to string
+        val = str(val)
+    
+        # split the value
+        tokens = val.split()
+        
+        # Converts each token into lowercase
+        for i in range(len(tokens)):
+            tokens[i] = tokens[i].lower()
+        
+        comment_words += " ".join(tokens)+" "
+    
+    wordcloud = WordCloud(width = 800, height = 800,
+                    background_color ='white',
+                    stopwords = stopwords,
+                    min_font_size = 10).generate(comment_words)
+
+    plt.figure(figsize = (8, 8), facecolor = None)
+    plt.imshow(wordcloud)
+    plt.axis("off")
+    plt.tight_layout(pad = 0)
+    st.pyplot()
+
 def main():
     st.title("Spotify Songs Recommender")
     st.write("This is a song recommender based on the Spotify dataset.")
@@ -131,68 +166,16 @@ def main():
     image = Image.open('open-graph-default.png')
     st.image(image, caption='Spotify')
 
-    from wordcloud import WordCloud, STOPWORDS
-
-    comment_words = ''
-    stopwords = set(STOPWORDS)
-
     st.write("Select the year and create a word cloud of the songs in that year.")
 
     year_list = sorted(df.toPandas()['year'].unique(),reverse=True)
     selected_year = st.selectbox( "Type or select a year from the dropdown", year_list)
     
-    for val in df.filter(df.year == selected_year).toPandas()['name']:
-        # typecaste each val to string
-        val = str(val)
-    
-        # split the value
-        tokens = val.split()
-        
-        # Converts each token into lowercase
-        for i in range(len(tokens)):
-            tokens[i] = tokens[i].lower()
-        
-        comment_words += " ".join(tokens)+" "
-    
-    wordcloud = WordCloud(width = 800, height = 800,
-                    background_color ='white',
-                    stopwords = stopwords,
-                    min_font_size = 10).generate(comment_words)
+    cloud(selected_year)
 
-    plt.figure(figsize = (8, 8), facecolor = None)
-    plt.imshow(wordcloud)
-    plt.axis("off")
-    plt.tight_layout(pad = 0)
-    st.pyplot()
-
-    st.write("Select an artist and create a word cloud of the songs of this artist.")
-
-    artist_list = sorted(df.toPandas()['artists'].unique())
-    selected_artist = st.selectbox( "Type or select an artist from the dropdown", artist_list)
-
-    for val in df.filter(df.artists.contains(selected_artist)).toPandas()['name']:
-        # typecaste each val to string
-        val = str(val)
-    
-        # split the value
-        tokens = val.split()
-        
-        # Converts each token into lowercase
-        for i in range(len(tokens)):
-            tokens[i] = tokens[i].lower()
-        
-        comment_words += " ".join(tokens)+" "
-    
-    wordcloud = WordCloud(width = 800, height = 800,
-                    background_color ='white',
-                    stopwords = stopwords,
-                    min_font_size = 10).generate(comment_words)
-
-    plt.figure(figsize = (8, 8), facecolor = None)
-    plt.imshow(wordcloud)
-    plt.axis("off")
-    plt.tight_layout(pad = 0)
-    st.pyplot()
+    artitst_list = sorted(df.toPandas()['artists'].unique())
+    selected_artist = st.selectbox( "Type or select an artist from the dropdown", artitst_list)
+    cloud(selected_artist)
 
     menu = ["Home", "Choose Your Song By Singer","Choose Your Song By Song Name","Interaction with the dataset"]
     choice = st.sidebar.selectbox("Menu", menu)
